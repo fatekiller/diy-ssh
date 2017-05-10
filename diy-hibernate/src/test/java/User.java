@@ -23,6 +23,7 @@ public class User {
 
     @Table(columnName = "username")
     private String username;
-    @Table(columnName = "userid")
+
+    @Table(columnName = "userid",isId = true)
     private String userid;
 }

@@ -14,4 +14,6 @@ public @interface Table {
     String tableName() default "className";
 
     String columnName() default "fieldName";
+
+    boolean isId() default false;
 }

@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import java.beans.PropertyVetoException;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.UUID;
@@ -15,6 +17,16 @@ import java.util.UUID;
  * Created by liuchenfei on 2017/5/9.
  */
 public class TestCase {
+    private User u;
+
+    public TestCase(){
+        super();
+        this.u=new User();
+        u.setUserid(UUID.randomUUID().toString());
+        u.setUsername("username");
+    }
+
+
     @Test
     public void testXmlParse() {
         try {
@@ -62,13 +74,8 @@ public class TestCase {
 
     @Test
     public void generalTest() throws NoSuchFieldException, IllegalAccessException {
-        User u=new User();
-        u.setUserid(UUID.randomUUID().toString());
-        u.setUsername("username");
-        Field f=u.getClass().getDeclaredField("username");
-        f.setAccessible(true);
-        String s=f.get(u).toString();
-        System.out.println(s);
+        StringBuffer sb=new StringBuffer("this is a test");
+        System.out.println(sb.substring(0,sb.length()));
     }
 
     @Test
@@ -78,6 +85,7 @@ public class TestCase {
         u.setUsername("username");
         try {
             new MyTemplate().save(u);
+            u.setUsername("test");
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -87,6 +95,88 @@ public class TestCase {
         }
 
     }
+
+    @Test
+    public void AccessTest(){
+        User u=new User();
+        u.setUserid(UUID.randomUUID().toString());
+        u.setUsername("username");
+        try {
+            setAcc(u);
+            u.getClass().getField("username");
+            System.out.println(u.getClass().getField("username"));
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void updateTest(){
+        try {
+            MyTemplate t=new MyTemplate();
+            t.save(u);
+            u.setUsername("test");
+            t.update(u);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGeneric(){
+        StringBuffer sb=new StringBuffer("as");
+        sb.deleteCharAt(sb.length()-1);
+        System.out.println(sb.toString());
+    }
+
+    @Test
+    public void testQuery()
+    {
+        MyTemplate template=new MyTemplate();
+        try {
+            template.save(u);
+            User nu=template.query(u.getUserid(),User.class);
+            System.out.println(u.equals(nu));
+            template.delete(nu);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void testRs(){
+        try {
+            ResultSet rs=HConnection.getConnection().prepareStatement("select * from USER").executeQuery();
+            System.out.println(rs.getString(0));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private <T> T getT() throws IllegalAccessException, InstantiationException {
+        Class<T> entityClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        System.out.println(entityClass);
+        return entityClass.newInstance();
+    }
+
+
+    private void setAcc(Object o) throws NoSuchFieldException {
+        o.getClass().getDeclaredField("username").setAccessible(true);
+    }
+
+
 
     class MyTemplate extends TDataSourceTemplate{
 
