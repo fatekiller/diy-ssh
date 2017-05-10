@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <datasource>
     <url>jdbc:mysql://localhost:3306/test</url>
-    <driver>com.mysql.jdbc.Driver</driver>
     <username>root</username>
     <password>liuchenfei</password>
-    <maxConnSize>15</maxConnSize>
 </datasource>
